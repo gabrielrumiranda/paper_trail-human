@@ -1,0 +1,8 @@
+/.bundle/
+/vendor/bundle
+/coverage/
+/pkg/
+/tmp/
+*.gem
+Gemfile.lock
+gemfiles/*.lock

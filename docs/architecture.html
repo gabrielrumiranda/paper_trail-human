@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arquitetura — paper_trail-human</title>
+  <style>
+    :root {
+      --bg: #1a1b26;
+      --surface: #24283b;
+      --border: #414868;
+      --text: #c0caf5;
+      --text-muted: #565f89;
+      --accent: #7aa2f7;
+      --green: #9ece6a;
+      --orange: #ff9e64;
+      --red: #f7768e;
+      --purple: #bb9af7;
+      --cyan: #7dcfff;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    h1 { color: var(--accent); font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { color: var(--accent); font-size: 1.4rem; margin: 2.5rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+    h3 { color: var(--purple); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+    p { margin-bottom: 1rem; }
+    .subtitle { color: var(--text-muted); font-size: 1rem; margin-bottom: 2rem; }
+    code {
+      background: var(--surface);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.85rem;
+    }
+    pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 0.6rem 0.8rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--accent); font-weight: 600; background: var(--surface); }
+    .layer {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      position: relative;
+    }
+    .layer-title {
+      position: absolute;
+      top: -0.7rem;
+      left: 1rem;
+      background: var(--bg);
+      padding: 0 0.5rem;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .layer-api { border-color: var(--accent); }
+    .layer-api .layer-title { color: var(--accent); }
+    .layer-core { border-color: var(--green); }
+    .layer-core .layer-title { color: var(--green); }
+    .layer-ports { border-color: var(--orange); }
+    .layer-ports .layer-title { color: var(--orange); }
+    .layer-adapters { border-color: var(--purple); }
+    .layer-adapters .layer-title { color: var(--purple); }
+    .components {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+    .component {
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+    }
+    .component-name { font-weight: 700; color: var(--cyan); margin-bottom: 0.3rem; }
+    .component-desc { font-size: 0.85rem; color: var(--text-muted); }
+    .arrow {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      margin: 0.5rem 0;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0.8rem 0;
+    }
+    .flow-num {
+      background: var(--accent);
+      color: var(--bg);
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-safe { background: rgba(158, 206, 106, 0.15); color: var(--green); }
+    .badge-warn { background: rgba(255, 158, 100, 0.15); color: var(--orange); }
+    .adr {
+      background: var(--surface);
+      border-left: 3px solid var(--accent);
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .adr-title { font-weight: 700; color: var(--accent); margin-bottom: 0.3rem; }
+    .rules-list { list-style: none; padding: 0; }
+    .rules-list li { padding: 0.3rem 0; padding-left: 1.5rem; position: relative; }
+    .rules-list li::before { content: "→"; position: absolute; left: 0; color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<h1>paper_trail-human</h1>
+<p class="subtitle">Arquitetura Hexagonal (Ports &amp; Adapters)</p>
+
+<h2>Visão Geral</h2>
+<p>Transforma <code>PaperTrail::Version</code> em hashes legíveis para UIs de auditoria. O domínio de formatação é isolado de dependências externas através de ports e adapters.</p>
+
+<div class="layer layer-api">
+  <span class="layer-title">Public API</span>
+  <div class="components">
+    <div class="component">
+      <div class="component-name">PaperTrail::Human.format(version)</div>
+      <div class="component-desc">Formata um Version em hash estruturado</div>
+    </div>
+    <div class="component">
+      <div class="component-name">PaperTrail::Human.format_collection(versions)</div>
+      <div class="component-desc">Formata uma coleção de Versions</div>
+    </div>
+    <div class="component">
+      <div class="component-name">PaperTrail::Human.configure { |c| }</div>
+      <div class="component-desc">DSL de configuração por model</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="layer layer-core">
+  <span class="layer-title">Core (Domain) — Zero dependências externas</span>
+  <div class="components">
+    <div class="component">
+      <div class="component-name">Presenter</div>
+      <div class="component-desc">Orquestra formatação completa. Recebe version + config, retorna hash. Stateless.</div>
+    </div>
+    <div class="component">
+      <div class="component-name">FieldFormatter</div>
+      <div class="component-desc">Formata campo individual. Resolve nome humano + aplica resolver configurado.</div>
+    </div>
+    <div class="component">
+      <div class="component-name">ChangeExtractor</div>
+      <div class="component-desc">Extrai changes de Version. Suporta JSON, YAML e Hash (jsonb).</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="layer layer-ports">
+  <span class="layer-title">Ports (Interfaces)</span>
+  <div class="components">
+    <div class="component">
+      <div class="component-name">Ports::Resolver</div>
+      <div class="component-desc">Contrato: <code>#resolve(value) → String</code>. Todo adapter implementa esta interface.</div>
+    </div>
+  </div>
+</div>
+
+<div class="arrow">▼</div>
+
+<div class="layer layer-adapters">
+  <span class="layer-title">Adapters (Implementações)</span>
+  <div class="components">
+    <div class="component">
+      <div class="component-name">Relation</div>
+      <div class="component-desc">FK → nome via ActiveRecord <code>find_by</code></div>
+    </div>
+    <div class="component">
+      <div class="component-name">Enum</div>
+      <div class="component-desc">Valor → label via classe ou mapping hash</div>
+    </div>
+    <div class="component">
+      <div class="component-name">Boolean</div>
+      <div class="component-desc">true/false → labels customizados</div>
+    </div>
+    <div class="component">
+      <div class="component-name">Custom</div>
+      <div class="component-desc">Qualquer valor → resultado de lambda</div>
+    </div>
+  </div>
+</div>
+
+<h2>Fluxo de Dados</h2>
+
+<div class="flow-step">
+  <div class="flow-num">1</div>
+  <div><strong>ChangeExtractor</strong> recebe <code>PaperTrail::Version</code> e extrai hash de mudanças</div>
+</div>
+<div class="flow-step">
+  <div class="flow-num">2</div>
+  <div><strong>Presenter</strong> filtra campos ignorados e resolve whodunnit</div>
+</div>
+<div class="flow-step">
+  <div class="flow-num">3</div>
+  <div><strong>FieldFormatter</strong> para cada campo: busca config → instancia resolver → resolve valores</div>
+</div>
+<div class="flow-step">
+  <div class="flow-num">4</div>
+  <div>Retorna hash estruturado com <code>user</code>, <code>event</code>, <code>model</code>, <code>item_id</code>, <code>created_at</code>, <code>fields</code></div>
+</div>
+
+<pre>{
+  user: "João Silva",
+  event: "update",
+  model: "User",
+  item_id: 1,
+  created_at: 2026-05-29 12:00:00,
+  fields: [
+    { field: "Nome", previous_value: "João", value: "João Silva" },
+    { field: "Empresa", previous_value: "Acme", value: "Globex" }
+  ]
+}</pre>
+
+<h2>Thread-Safety</h2>
+
+<table>
+  <thead>
+    <tr><th>Mecanismo</th><th>Onde</th><th>Por quê</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Mutex</code> (double-check)</td>
+      <td><code>PaperTrail::Human.configuration</code></td>
+      <td>Inicialização lazy thread-safe</td>
+    </tr>
+    <tr>
+      <td><code>Mutex#synchronize</code></td>
+      <td><code>Configuration#register</code></td>
+      <td>Escrita concorrente no hash de configs</td>
+    </tr>
+    <tr>
+      <td><code>ModelConfig#freeze</code></td>
+      <td>Após registro</td>
+      <td>Leituras lock-free (imutável)</td>
+    </tr>
+    <tr>
+      <td>Stateless Presenter</td>
+      <td>Cada <code>format</code> call</td>
+      <td>Sem estado compartilhado entre requests</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Resolvers</h2>
+
+<table>
+  <thead>
+    <tr><th>Tipo</th><th>Input</th><th>Output</th><th>Fallback</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>:relation</code></td>
+      <td>FK (Integer)</td>
+      <td>Atributo do registro</td>
+      <td>Valor raw se classe/registro não existe</td>
+    </tr>
+    <tr>
+      <td><code>:enum</code></td>
+      <td>Valor do enum</td>
+      <td>Label humano</td>
+      <td>Valor raw se classe não existe</td>
+    </tr>
+    <tr>
+      <td><code>:boolean</code></td>
+      <td><code>true</code> / <code>false</code></td>
+      <td>Label customizado</td>
+      <td>"Yes" / "No" (defaults)</td>
+    </tr>
+    <tr>
+      <td><code>:custom</code></td>
+      <td>Qualquer valor</td>
+      <td>Resultado do lambda</td>
+      <td>—</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Decisões de Design</h2>
+
+<div class="adr">
+  <div class="adr-title">ADR-001: Hexagonal Architecture</div>
+  <p>Core sem dependências externas. Adapters implementam ports. Permite testar core sem banco e adicionar resolvers sem modificar core (Open/Closed).</p>
+</div>
+
+<div class="adr">
+  <div class="adr-title">ADR-002: Thread-Safety via Frozen Configs</div>
+  <p>Mutex protege escritas. ModelConfig frozen após registro. Leituras são lock-free. Presenter é stateless.</p>
+</div>
+
+<div class="adr">
+  <div class="adr-title">ADR-003: String-Based Resolver Lookup</div>
+  <p>RESOLVER_MAP com strings + <code>Object.const_get</code>. Core não importa adapters. Erro claro para types inválidos.</p>
+</div>
+
+<div class="adr">
+  <div class="adr-title">ADR-004: Graceful Fallback</div>
+  <p>Resolvers capturam <code>NameError</code> e retornam valor raw. Logs de auditoria nunca explodem por model deletado.</p>
+</div>
+
+<h2>Estrutura de Diretórios</h2>
+
+<pre>lib/paper_trail/human/
+├── core/                          # Domain — pure Ruby
+│   ├── presenter.rb               # Orquestra formatação
+│   ├── field_formatter.rb         # Formata campo individual
+│   └── change_extractor.rb        # Extrai changes
+├── ports/                         # Interfaces
+│   └── resolver.rb                # #resolve(value) → String
+├── adapters/resolvers/            # Implementações
+│   ├── relation.rb                # FK → nome
+│   ├── enum.rb                    # Valor → label
+│   ├── boolean.rb                 # Bool → label
+│   └── custom.rb                  # Lambda
+├── configuration.rb               # DSL thread-safe
+├── railtie.rb                     # Rails integration
+└── version.rb
+
+spec/
+├── unit/                          # Doubles, sem DB
+│   ├── core/
+│   ├── adapters/resolvers/
+│   └── configuration_spec.rb
+└── integration/                   # End-to-end, threads
+    ├── format_spec.rb
+    └── thread_safety_spec.rb</pre>
+
+<h2>Como Estender</h2>
+
+<h3>Novo Resolver</h3>
+<ul class="rules-list">
+  <li>Criar <code>lib/paper_trail/human/adapters/resolvers/novo_tipo.rb</code></li>
+  <li>Implementar <code>include Ports::Resolver</code> + <code>#resolve(value)</code></li>
+  <li>Adicionar ao <code>RESOLVER_MAP</code> em <code>core/field_formatter.rb</code></li>
+  <li>Adicionar <code>require_relative</code> em <code>lib/paper_trail/human.rb</code></li>
+  <li>Criar spec em <code>spec/unit/adapters/resolvers/</code></li>
+</ul>
+
+<h3>Customizar Nomes de Campos</h3>
+<pre>PaperTrail::Human.configure do |config|
+  config.field_name_resolver = ->(field_name, item_type) {
+    item_type.constantize.human_attribute_name(field_name)
+  }
+end</pre>
+
+<h2>Requisitos</h2>
+
+<table>
+  <tbody>
+    <tr><td>Ruby</td><td>>= 3.0</td></tr>
+    <tr><td>Rails</td><td>>= 6.1</td></tr>
+    <tr><td>PaperTrail</td><td>>= 12.0</td></tr>
+    <tr><td>Dependências extras</td><td>Nenhuma (apenas activerecord + paper_trail)</td></tr>
+  </tbody>
+</table>
+
+<h2>Testes</h2>
+
+<table>
+  <thead>
+    <tr><th>Tipo</th><th>Quantidade</th><th>Cobertura</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Unit (core + adapters)</td><td>31 specs</td><td>Core isolado, sem DB</td></tr>
+    <tr><td>Integration</td><td>6 specs</td><td>End-to-end + thread-safety</td></tr>
+    <tr><td><strong>Total</strong></td><td><strong>37 specs</strong></td><td><strong>0 failures, 0 rubocop offenses</strong></td></tr>
+  </tbody>
+</table>
+
+</body>
+</html>
