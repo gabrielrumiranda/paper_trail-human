@@ -5,6 +5,7 @@ require_relative 'human/configuration'
 require_relative 'human/core/change_extractor'
 require_relative 'human/core/field_formatter'
 require_relative 'human/core/presenter'
+require_relative 'human/core/batch_presenter'
 require_relative 'human/ports/resolver'
 require_relative 'human/adapters/resolvers/relation'
 require_relative 'human/adapters/resolvers/enum'
@@ -36,8 +37,7 @@ module PaperTrail
       end
 
       def format_collection(versions)
-        presenter = Core::Presenter.new(configuration)
-        versions.map { |v| presenter.call(v) }
+        Core::BatchPresenter.new(configuration).call(versions)
       end
     end
   end

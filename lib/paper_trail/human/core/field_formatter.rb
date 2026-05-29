@@ -11,10 +11,11 @@ module PaperTrail
           custom: 'PaperTrail::Human::Adapters::Resolvers::Custom'
         }.freeze
 
-        def initialize(model_config, item_type, field_name_resolver: nil)
+        def initialize(model_config, item_type, field_name_resolver: nil, preloaded: nil)
           @model_config = model_config
           @item_type = item_type
           @field_name_resolver = field_name_resolver
+          @preloaded = preloaded || {}
         end
 
         def call(field_name, previous_value, new_value)
@@ -43,7 +44,15 @@ module PaperTrail
           raise Error, "Unknown resolver type: #{config[:type]}" unless class_name
 
           klass = Object.const_get(class_name)
-          klass.new(**config[:options])
+          opts = config[:options]
+          opts = opts.merge(cache: relation_cache(config)) if config[:type] == :relation
+          klass.new(**opts)
+        end
+
+        def relation_cache(config)
+          class_name = config[:options][:class_name] || config[:options][:class].to_s
+          attribute = config[:options][:attribute] || :name
+          @preloaded[[class_name, attribute]] || {}
         end
 
         def resolve_value(resolver, value)

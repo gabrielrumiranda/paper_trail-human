@@ -24,21 +24,30 @@ module PaperTrail
             model: version.item_type,
             item_id: version.item_id,
             created_at: version.created_at,
-            fields: build_fields(changes, formatter)
+            fields: build_fields(changes, formatter, version.event)
           }
         end
 
         private
 
-        def build_fields(changes, formatter)
+        def build_fields(changes, formatter, event)
           changes
             .reject { |field, _| @configuration.ignored_fields.include?(field.to_s) }
-            .map { |field, values| format_field(formatter, field, values) }
+            .map { |field, values| format_field(formatter, field, values, event) }
         end
 
-        def format_field(formatter, field, values)
+        def format_field(formatter, field, values, event)
           previous_value, new_value = Array(values)
-          formatter.call(field, previous_value, new_value)
+          result = formatter.call(field, previous_value, new_value)
+
+          case event
+          when 'create'
+            result.delete(:previous_value)
+          when 'destroy'
+            result.delete(:value)
+          end
+
+          result
         end
       end
     end
