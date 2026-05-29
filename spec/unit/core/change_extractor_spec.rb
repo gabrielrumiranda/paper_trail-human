@@ -86,6 +86,7 @@ RSpec.describe PaperTrail::Human::Core::ChangeExtractor do
       it 'returns empty hash' do
         version = instance_double(
           'PaperTrail::Version',
+          id: 1,
           object_changes: nil,
           object: nil,
           event: 'update'
@@ -94,6 +95,21 @@ RSpec.describe PaperTrail::Human::Core::ChangeExtractor do
         result = extractor.call(version)
 
         expect(result).to eq({})
+      end
+    end
+
+    context 'without object_changes on update' do
+      it 'emits a warning once' do
+        version = instance_double(
+          'PaperTrail::Version',
+          id: 1,
+          object_changes: nil,
+          object: nil,
+          event: 'update'
+        )
+
+        expect { extractor.call(version) }
+          .to output(/has no object_changes/).to_stderr
       end
     end
   end

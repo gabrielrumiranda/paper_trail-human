@@ -12,10 +12,24 @@ module PaperTrail
           changes = extract_object_changes(version)
           return changes if changes
 
+          warn_missing_object_changes(version) if version.event == 'update'
           infer_from_object(version)
         end
 
         private
+
+        def warn_missing_object_changes(version)
+          return if @warned
+
+          @warned = true
+          message = "[paper_trail-human] Version ##{version.id} (update) has no object_changes. " \
+                    'Add the object_changes column to your versions table for full update tracking.'
+          if defined?(Rails) && Rails.respond_to?(:logger) && Rails.logger
+            Rails.logger.warn(message)
+          else
+            warn message
+          end
+        end
 
         def extract_object_changes(version)
           return nil unless version.respond_to?(:object_changes) && version.object_changes
