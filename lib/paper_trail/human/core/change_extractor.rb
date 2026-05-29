@@ -8,6 +8,8 @@ module PaperTrail
   module Human
     module Core
       class ChangeExtractor
+        YAML_PERMITTED_CLASSES = [Time, Date, DateTime, BigDecimal, Symbol].freeze
+
         def call(version)
           changes = extract_object_changes(version)
           return changes if changes
@@ -45,9 +47,17 @@ module PaperTrail
 
           JSON.parse(raw)
         rescue JSON::ParserError
-          YAML.safe_load(raw, permitted_classes: [Time, Date, DateTime, BigDecimal, Symbol])
+          YAML.safe_load(raw, permitted_classes: yaml_permitted_classes, aliases: true)
         rescue StandardError
           {}
+        end
+
+        def yaml_permitted_classes
+          classes = YAML_PERMITTED_CLASSES.dup
+          classes << ActiveSupport::TimeWithZone if defined?(ActiveSupport::TimeWithZone)
+          classes << ActiveSupport::TimeZone if defined?(ActiveSupport::TimeZone)
+          classes << ActiveSupport::Duration if defined?(ActiveSupport::Duration)
+          classes
         end
       end
     end

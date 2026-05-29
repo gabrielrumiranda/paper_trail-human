@@ -35,6 +35,38 @@ RSpec.describe PaperTrail::Human::Core::ChangeExtractor do
 
         expect(result).to eq('name' => %w[Old New])
       end
+
+      it 'parses YAML with ActiveSupport::TimeWithZone' do
+        require 'active_support/core_ext/time/zones'
+
+        yaml = <<~YAML
+          ---
+          name:
+          - Old
+          - New
+          updated_at:
+          - !ruby/object:ActiveSupport::TimeWithZone
+            utc: 2026-05-29 12:00:00.000000000 Z
+            zone: &1 !ruby/object:ActiveSupport::TimeZone
+              name: Etc/UTC
+            time: 2026-05-29 12:00:00.000000000 Z
+          - !ruby/object:ActiveSupport::TimeWithZone
+            utc: 2026-05-29 13:00:00.000000000 Z
+            zone: *1
+            time: 2026-05-29 13:00:00.000000000 Z
+        YAML
+        version = instance_double(
+          'PaperTrail::Version',
+          object_changes: yaml,
+          object: nil,
+          event: 'update'
+        )
+
+        result = extractor.call(version)
+
+        expect(result['name']).to eq(%w[Old New])
+        expect(result['updated_at']).to be_an(Array)
+      end
     end
 
     context 'with Hash object_changes (jsonb)' do
