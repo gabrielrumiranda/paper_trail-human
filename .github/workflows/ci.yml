@@ -22,20 +22,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["3.0", "3.1", "3.2", "3.3"]
+        ruby: ["2.7", "3.0", "3.1", "3.2", "3.3"]
         gemfile:
+          - gemfiles/rails_5.2.gemfile
+          - gemfiles/rails_6.0.gemfile
           - gemfiles/rails_6.1.gemfile
+          - gemfiles/rails_6.1_pt11.gemfile
           - gemfiles/rails_7.0.gemfile
           - gemfiles/rails_7.1.gemfile
           - gemfiles/rails_7.2.gemfile
           - gemfiles/rails_8.0.gemfile
         exclude:
+          # Rails 7.2+ requires Ruby >= 3.1
+          - ruby: "2.7"
+            gemfile: gemfiles/rails_7.2.gemfile
+          - ruby: "2.7"
+            gemfile: gemfiles/rails_8.0.gemfile
           - ruby: "3.0"
             gemfile: gemfiles/rails_7.2.gemfile
           - ruby: "3.0"
             gemfile: gemfiles/rails_8.0.gemfile
+          # Rails 8.0 requires Ruby >= 3.2
           - ruby: "3.1"
             gemfile: gemfiles/rails_8.0.gemfile
+          # Rails 5.2 and 6.0 don't support Ruby 3.2+
+          - ruby: "3.2"
+            gemfile: gemfiles/rails_5.2.gemfile
+          - ruby: "3.2"
+            gemfile: gemfiles/rails_6.0.gemfile
+          - ruby: "3.3"
+            gemfile: gemfiles/rails_5.2.gemfile
+          - ruby: "3.3"
+            gemfile: gemfiles/rails_6.0.gemfile
     env:
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
     steps:

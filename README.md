@@ -74,9 +74,9 @@ Hexagonal (Ports & Adapters):
 
 ## Requirements
 
-- Ruby >= 3.0
-- Rails >= 6.1
-- PaperTrail >= 12.0
+- Ruby >= 2.7
+- Rails >= 5.2
+- PaperTrail >= 9.0
 
 ## Development
 

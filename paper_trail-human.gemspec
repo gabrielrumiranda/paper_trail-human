@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
                      'from PaperTrail::Version into structured, UI-ready hashes.'
   spec.homepage = 'https://github.com/gabriel/paper_trail-human'
   spec.license = 'MIT'
-  spec.required_ruby_version = '>= 3.0'
+  spec.required_ruby_version = '>= 2.7'
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = spec.homepage
@@ -21,6 +21,6 @@ Gem::Specification.new do |spec|
   spec.files = Dir['lib/**/*', 'LICENSE.txt', 'README.md', 'CHANGELOG.md']
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'activerecord', '>= 6.1'
-  spec.add_dependency 'paper_trail', '>= 12.0'
+  spec.add_dependency 'activerecord', '>= 5.2'
+  spec.add_dependency 'paper_trail', '>= 9.0'
 end
