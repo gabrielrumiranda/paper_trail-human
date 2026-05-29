@@ -9,16 +9,18 @@ module PaperTrail
           @change_extractor = ChangeExtractor.new
         end
 
-        def call(versions)
+        def call(versions, only: nil, except: nil)
           versions_data = versions.map { |v| [v, @change_extractor.call(v)] }
           preloaded = preload_relations(versions_data)
 
-          versions_data.map { |version, changes| format_version(version, changes, preloaded) }
+          versions_data.map do |version, changes|
+            format_version(version, changes, preloaded, only: only, except: except)
+          end
         end
 
         private
 
-        def format_version(version, changes, preloaded)
+        def format_version(version, changes, preloaded, only: nil, except: nil)
           model_config = @configuration.config_for(version.item_type)
           formatter = FieldFormatter.new(
             model_config,
@@ -33,14 +35,24 @@ module PaperTrail
             model: version.item_type,
             item_id: version.item_id,
             created_at: version.created_at,
-            fields: build_fields(changes, formatter, version.event)
+            fields: build_fields(changes, formatter, version.event, only: only, except: except)
           }
         end
 
-        def build_fields(changes, formatter, event)
+        def build_fields(changes, formatter, event, only: nil, except: nil)
           changes
             .reject { |field, _| @configuration.ignored_fields.include?(field.to_s) }
+            .select { |field, _| filter_field?(field, only, except) }
             .map { |field, values| format_field(formatter, field, values, event) }
+        end
+
+        def filter_field?(field, only, except)
+          field_s = field.to_s
+          return only.map(&:to_s).include?(field_s) if only
+
+          return !except.map(&:to_s).include?(field_s) if except
+
+          true
         end
 
         def format_field(formatter, field, values, event)
