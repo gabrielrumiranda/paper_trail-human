@@ -11,6 +11,7 @@ require_relative 'human/adapters/resolvers/relation'
 require_relative 'human/adapters/resolvers/enum'
 require_relative 'human/adapters/resolvers/boolean'
 require_relative 'human/adapters/resolvers/custom'
+require_relative 'human/adapters/resolvers/text'
 
 module PaperTrail
   module Human

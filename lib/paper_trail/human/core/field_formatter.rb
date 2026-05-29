@@ -8,7 +8,8 @@ module PaperTrail
           relation: 'PaperTrail::Human::Adapters::Resolvers::Relation',
           enum: 'PaperTrail::Human::Adapters::Resolvers::Enum',
           boolean: 'PaperTrail::Human::Adapters::Resolvers::Boolean',
-          custom: 'PaperTrail::Human::Adapters::Resolvers::Custom'
+          custom: 'PaperTrail::Human::Adapters::Resolvers::Custom',
+          text: 'PaperTrail::Human::Adapters::Resolvers::Text'
         }.freeze
 
         def initialize(model_config, item_type, field_name_resolver: nil, preloaded: nil)
