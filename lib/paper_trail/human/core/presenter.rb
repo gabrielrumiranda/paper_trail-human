@@ -20,7 +20,7 @@ module PaperTrail
 
           {
             user: @configuration.resolve_whodunnit(version.whodunnit),
-            event: version.event,
+            event: EventTranslator.call(version.event, translate: @configuration.translate_events),
             model: version.item_type,
             item_id: version.item_id,
             created_at: version.created_at,
