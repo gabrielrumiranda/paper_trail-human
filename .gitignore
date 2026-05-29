@@ -6,3 +6,4 @@
 *.gem
 Gemfile.lock
 gemfiles/*.lock
+docs/ROADMAP.md
