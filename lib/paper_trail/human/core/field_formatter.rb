@@ -69,7 +69,7 @@ module PaperTrail
         end
 
         def default_human_field_name(field_name)
-          field_name.to_s.tr('_', ' ').then { |s| "#{s[0].upcase}#{s[1..]}" }
+          field_name.to_s.delete_suffix('_id').tr('_', ' ').then { |s| "#{s[0].upcase}#{s[1..]}" }
         end
       end
     end

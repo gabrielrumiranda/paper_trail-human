@@ -12,6 +12,14 @@ RSpec.describe PaperTrail::Human::Core::FieldFormatter do
 
         expect(result).to eq(field: 'First name', previous_value: 'Old', value: 'New')
       end
+
+      it 'strips _id suffix from field name' do
+        formatter = described_class.new(nil, 'NonExistentModel')
+
+        result = formatter.call('company_id', 1, 2)
+
+        expect(result[:field]).to eq('Company')
+      end
     end
 
     context 'with boolean resolver config' do
