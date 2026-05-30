@@ -9,7 +9,9 @@ module PaperTrail
           enum: 'PaperTrail::Human::Adapters::Resolvers::Enum',
           boolean: 'PaperTrail::Human::Adapters::Resolvers::Boolean',
           custom: 'PaperTrail::Human::Adapters::Resolvers::Custom',
-          text: 'PaperTrail::Human::Adapters::Resolvers::Text'
+          text: 'PaperTrail::Human::Adapters::Resolvers::Text',
+          date: 'PaperTrail::Human::Adapters::Resolvers::Date',
+          number: 'PaperTrail::Human::Adapters::Resolvers::Number'
         }.freeze
 
         def initialize(model_config, item_type, field_name_resolver: nil, preloaded: nil)

@@ -29,7 +29,7 @@ module PaperTrail
             preloaded: preloaded
           )
 
-          {
+          result = {
             user: @configuration.resolve_whodunnit(version.whodunnit),
             event: EventTranslator.call(version.event, translate: @configuration.translate_events),
             model: version.item_type,
@@ -37,6 +37,11 @@ module PaperTrail
             created_at: version.created_at,
             fields: build_fields(changes, formatter, version.event, only: only, except: except)
           }
+
+          item_name = @configuration.resolve_item_name(version)
+          result[:item_name] = item_name if item_name
+
+          result
         end
 
         def build_fields(changes, formatter, event, only: nil, except: nil)
