@@ -111,7 +111,7 @@ RSpec.describe PaperTrail::Human::Core::Presenter do
     context 'with after_format hook' do
       it 'applies the hook to the result' do
         PaperTrail::Human.configure do |config|
-          config.after_format = ->(result, ver) {
+          config.after_format = lambda { |result, _ver|
             result[:record_url] = "/#{result[:model].downcase.tr(':', '_')}s/#{result[:item_id]}"
             result
           }
