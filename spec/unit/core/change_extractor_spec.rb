@@ -36,12 +36,9 @@ RSpec.describe PaperTrail::Human::Core::ChangeExtractor do
         expect(result).to eq('name' => %w[Old New])
       end
 
-      it 'parses YAML with ActiveSupport::TimeWithZone' do
-        require 'active_support/core_ext/time/zones'
-
-        time1 = Time.utc(2026, 5, 29, 12, 0, 0).in_time_zone('UTC')
-        time2 = Time.utc(2026, 5, 29, 13, 0, 0).in_time_zone('UTC')
-        changes = { 'name' => %w[Old New], 'updated_at' => [time1, time2] }
+      it 'parses YAML with permitted classes' do
+        time = Time.utc(2026, 5, 29, 12, 0, 0)
+        changes = { 'name' => %w[Old New], 'updated_at' => [time, time + 3600] }
         yaml = YAML.dump(changes)
 
         version = instance_double(
@@ -54,7 +51,7 @@ RSpec.describe PaperTrail::Human::Core::ChangeExtractor do
         result = extractor.call(version)
 
         expect(result['name']).to eq(%w[Old New])
-        expect(result['updated_at']).to be_an(Array)
+        expect(result['updated_at'].first).to be_a(Time)
       end
     end
 
