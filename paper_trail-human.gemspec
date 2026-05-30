@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.summary = 'Transforms PaperTrail versions into human-readable hashes for audit logs.'
   spec.description = 'Resolves foreign keys, enums, booleans and custom transformations ' \
                      'from PaperTrail::Version into structured, UI-ready hashes.'
-  spec.homepage = 'https://github.com/gabriel/paper_trail-human'
+  spec.homepage = 'https://github.com/gabrielrumiranda/paper_trail-human'
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.1'
 

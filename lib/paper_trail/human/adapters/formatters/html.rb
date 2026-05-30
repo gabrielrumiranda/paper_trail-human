@@ -32,7 +32,7 @@ module PaperTrail
           end
 
           def escape(str)
-            str.gsub('&', '&amp;').gsub('<', '&lt;').gsub('>', '&gt;').gsub('"', '&quot;')
+            str.gsub('&', '&amp;').gsub('<', '&lt;').gsub('>', '&gt;').gsub('"', '&quot;').gsub("'", '&#39;')
           end
         end
       end
