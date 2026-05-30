@@ -65,7 +65,18 @@ module PaperTrail
         def human_field_name(field_name)
           return @field_name_resolver.call(field_name, @item_type) if @field_name_resolver
 
-          default_human_field_name(field_name)
+          i18n_field_name(field_name) || default_human_field_name(field_name)
+        end
+
+        def i18n_field_name(field_name)
+          return nil unless defined?(I18n)
+
+          model_key = @item_type.gsub('::', '/').gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+                                .gsub(/([a-z\d])([A-Z])/, '\1_\2').downcase
+          key = "activerecord.attributes.#{model_key}.#{field_name}"
+          I18n.t(key, default: nil)
+        rescue I18n::InvalidLocale, I18n::InvalidLocaleData
+          nil
         end
 
         def default_human_field_name(field_name)

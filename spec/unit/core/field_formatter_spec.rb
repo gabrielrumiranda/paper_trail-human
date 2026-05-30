@@ -79,5 +79,39 @@ RSpec.describe PaperTrail::Human::Core::FieldFormatter do
           .to raise_error(PaperTrail::Human::Error, /Unknown resolver type/)
       end
     end
+
+    context 'with I18n translations available' do
+      before do
+        require 'i18n'
+        allow(I18n).to receive(:t)
+          .with('activerecord.attributes.some_model.company_id', default: nil)
+          .and_return('Empresa')
+      end
+
+      it 'uses I18n translation for field name' do
+        formatter = described_class.new(nil, 'SomeModel')
+
+        result = formatter.call('company_id', 1, 2)
+
+        expect(result[:field]).to eq('Empresa')
+      end
+    end
+
+    context 'with I18n returning nil' do
+      before do
+        require 'i18n'
+        allow(I18n).to receive(:t)
+          .with('activerecord.attributes.some_model.first_name', default: nil)
+          .and_return(nil)
+      end
+
+      it 'falls back to default humanization' do
+        formatter = described_class.new(nil, 'SomeModel')
+
+        result = formatter.call('first_name', 'Old', 'New')
+
+        expect(result[:field]).to eq('First name')
+      end
+    end
   end
 end
