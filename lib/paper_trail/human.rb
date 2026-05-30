@@ -7,6 +7,7 @@ require_relative 'human/core/field_formatter'
 require_relative 'human/core/event_translator'
 require_relative 'human/core/presenter'
 require_relative 'human/core/batch_presenter'
+require_relative 'human/core/timeline'
 require_relative 'human/ports/resolver'
 require_relative 'human/adapters/resolvers/relation'
 require_relative 'human/adapters/resolvers/enum'
@@ -63,6 +64,10 @@ module PaperTrail
         raise Error, "Unknown format: #{type}. Available: #{FORMATTERS.keys.join(', ')}" unless klass
 
         klass.new
+      end
+
+      def timeline(versions, group_by: :day, only: nil, except: nil)
+        Core::Timeline.new(configuration).call(versions, group_by: group_by, only: only, except: except)
       end
     end
   end
