@@ -67,5 +67,45 @@ RSpec.describe PaperTrail::Human::Core::Presenter do
         expect(field_names).not_to include('Name')
       end
     end
+
+    context 'with item_name configured' do
+      it 'includes item_name in result' do
+        user_class = Class.new do
+          def self.find_by(id:)
+            new
+          end
+
+          def name
+            'João Silva'
+          end
+        end
+        stub_const('User', user_class)
+
+        PaperTrail::Human.configure do |config|
+          config.register('User') { |m| m.item_name :name }
+        end
+
+        result = presenter.call(version)
+
+        expect(result[:item_name]).to eq('João Silva')
+      end
+
+      it 'omits item_name when record not found' do
+        user_class = Class.new do
+          def self.find_by(id:)
+            nil
+          end
+        end
+        stub_const('User', user_class)
+
+        PaperTrail::Human.configure do |config|
+          config.register('User') { |m| m.item_name :name }
+        end
+
+        result = presenter.call(version)
+
+        expect(result).not_to have_key(:item_name)
+      end
+    end
   end
 end

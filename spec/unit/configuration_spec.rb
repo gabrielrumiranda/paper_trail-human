@@ -56,4 +56,59 @@ RSpec.describe PaperTrail::Human::Configuration do
       expect(config.resolve_whodunnit('42')).to eq('User 42')
     end
   end
+
+  describe '#resolve_item_name' do
+    let(:version) do
+      instance_double('PaperTrail::Version', item_type: 'User', item_id: 1)
+    end
+
+    it 'returns nil when no item_name configured' do
+      config = described_class.new
+
+      expect(config.resolve_item_name(version)).to be_nil
+    end
+
+    it 'resolves via attribute on the model' do
+      user_class = Class.new do
+        def self.find_by(id:)
+          new(id)
+        end
+
+        def initialize(id)
+          @id = id
+        end
+
+        def name
+          'João Silva'
+        end
+      end
+      stub_const('User', user_class)
+
+      config = described_class.new
+      config.register('User') { |m| m.item_name :name }
+
+      expect(config.resolve_item_name(version)).to eq('João Silva')
+    end
+
+    it 'resolves via lambda' do
+      config = described_class.new
+      config.register('User') { |m| m.item_name ->(v) { "Item ##{v.item_id}" } }
+
+      expect(config.resolve_item_name(version)).to eq('Item #1')
+    end
+
+    it 'returns nil when record not found' do
+      user_class = Class.new do
+        def self.find_by(id:)
+          nil
+        end
+      end
+      stub_const('User', user_class)
+
+      config = described_class.new
+      config.register('User') { |m| m.item_name :name }
+
+      expect(config.resolve_item_name(version)).to be_nil
+    end
+  end
 end
