@@ -18,7 +18,7 @@ module PaperTrail
             field_name_resolver: @configuration.field_name_resolver
           )
 
-          {
+          result = {
             user: @configuration.resolve_whodunnit(version.whodunnit),
             event: EventTranslator.call(version.event, translate: @configuration.translate_events),
             model: version.item_type,
@@ -26,6 +26,8 @@ module PaperTrail
             created_at: version.created_at,
             fields: build_fields(changes, formatter, version.event, only: only, except: except)
           }
+
+          apply_after_format(result, version)
         end
 
         private
@@ -58,6 +60,12 @@ module PaperTrail
           end
 
           result
+        end
+
+        def apply_after_format(result, version)
+          return result unless @configuration.after_format
+
+          @configuration.after_format.call(result, version)
         end
       end
     end

@@ -29,7 +29,7 @@ module PaperTrail
             preloaded: preloaded
           )
 
-          {
+          result = {
             user: @configuration.resolve_whodunnit(version.whodunnit),
             event: EventTranslator.call(version.event, translate: @configuration.translate_events),
             model: version.item_type,
@@ -37,6 +37,8 @@ module PaperTrail
             created_at: version.created_at,
             fields: build_fields(changes, formatter, version.event, only: only, except: except)
           }
+
+          apply_after_format(result, version)
         end
 
         def build_fields(changes, formatter, event, only: nil, except: nil)
@@ -115,6 +117,12 @@ module PaperTrail
           end
         rescue NameError
           {}
+        end
+
+        def apply_after_format(result, version)
+          return result unless @configuration.after_format
+
+          @configuration.after_format.call(result, version)
         end
       end
     end
