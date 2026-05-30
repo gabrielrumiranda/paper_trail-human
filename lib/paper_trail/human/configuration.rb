@@ -37,17 +37,44 @@ module PaperTrail
 
         whodunnit_resolver.call(id)
       end
+
+      def resolve_item_name(version)
+        model_config = config_for(version.item_type)
+        return nil unless model_config&.item_name_attribute
+
+        attr = model_config.item_name_attribute
+        return attr.call(version) if attr.respond_to?(:call)
+
+        item = find_item(version)
+        item&.public_send(attr)
+      rescue NoMethodError, ActiveRecord::RecordNotFound
+        nil
+      end
+
+      private
+
+      def find_item(version)
+        klass = Object.const_get(version.item_type)
+        klass.find_by(id: version.item_id)
+      rescue NameError
+        nil
+      end
     end
 
     class ModelConfig
-      attr_reader :fields
+      attr_reader :fields, :item_name_attribute
 
       def initialize
         @fields = {}
+        @item_name_attribute = nil
       end
 
       def field(name, type, **options)
         @fields[name.to_s] = { type: type, options: options }
+      end
+
+      def item_name(attribute_or_lambda)
+        @item_name_attribute = attribute_or_lambda
       end
 
       def freeze
