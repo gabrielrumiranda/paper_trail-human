@@ -5,7 +5,8 @@ module PaperTrail
     class Configuration
       DEFAULT_IGNORED_FIELDS = %w[id created_at updated_at].freeze
 
-      attr_accessor :whodunnit_resolver, :extend_version_model, :field_name_resolver, :translate_events
+      attr_accessor :whodunnit_resolver, :extend_version_model, :field_name_resolver,
+                    :translate_events, :after_format
       attr_reader :ignored_fields
 
       def initialize
@@ -15,6 +16,7 @@ module PaperTrail
         @field_name_resolver = nil
         @translate_events = false
         @extend_version_model = false
+        @after_format = nil
         @mutex = Mutex.new
       end
 

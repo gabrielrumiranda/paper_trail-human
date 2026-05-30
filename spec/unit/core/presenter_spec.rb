@@ -107,5 +107,20 @@ RSpec.describe PaperTrail::Human::Core::Presenter do
         expect(result).not_to have_key(:item_name)
       end
     end
+
+    context 'with after_format hook' do
+      it 'applies the hook to the result' do
+        PaperTrail::Human.configure do |config|
+          config.after_format = ->(result, ver) {
+            result[:record_url] = "/#{result[:model].downcase.tr(':', '_')}s/#{result[:item_id]}"
+            result
+          }
+        end
+
+        result = presenter.call(version)
+
+        expect(result[:record_url]).to eq('/users/1')
+      end
+    end
   end
 end

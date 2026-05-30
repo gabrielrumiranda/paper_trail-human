@@ -41,7 +41,7 @@ module PaperTrail
           item_name = @configuration.resolve_item_name(version)
           result[:item_name] = item_name if item_name
 
-          result
+          apply_after_format(result, version)
         end
 
         def build_fields(changes, formatter, event, only: nil, except: nil)
@@ -120,6 +120,12 @@ module PaperTrail
           end
         rescue NameError
           {}
+        end
+
+        def apply_after_format(result, version)
+          return result unless @configuration.after_format
+
+          @configuration.after_format.call(result, version)
         end
       end
     end
