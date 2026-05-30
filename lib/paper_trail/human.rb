@@ -32,12 +32,12 @@ module PaperTrail
         MUTEX.synchronize { @configuration = Configuration.new }
       end
 
-      def format(version)
-        Core::Presenter.new(configuration).call(version)
+      def format(version, only: nil, except: nil)
+        Core::Presenter.new(configuration).call(version, only: only, except: except)
       end
 
-      def format_collection(versions)
-        Core::BatchPresenter.new(configuration).call(versions)
+      def format_collection(versions, only: nil, except: nil)
+        Core::BatchPresenter.new(configuration).call(versions, only: only, except: except)
       end
     end
   end

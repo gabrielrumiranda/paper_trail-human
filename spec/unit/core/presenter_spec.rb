@@ -49,5 +49,23 @@ RSpec.describe PaperTrail::Human::Core::Presenter do
 
       expect(result[:user]).to eq('42')
     end
+
+    context 'with only filter' do
+      it 'returns only specified fields' do
+        result = presenter.call(version, only: [:name])
+        field_names = result[:fields].map { |f| f[:field] }
+
+        expect(field_names).to eq(['Name'])
+      end
+    end
+
+    context 'with except filter' do
+      it 'excludes specified fields' do
+        result = presenter.call(version, except: [:name])
+        field_names = result[:fields].map { |f| f[:field] }
+
+        expect(field_names).not_to include('Name')
+      end
+    end
   end
 end
