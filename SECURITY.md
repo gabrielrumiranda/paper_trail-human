@@ -13,7 +13,7 @@ If you discover a security vulnerability in paper_trail-human, please report it 
 
 **Do NOT open a public GitHub issue for security vulnerabilities.**
 
-Instead, please email: **gabriel@rumiranda.dev**
+Instead, please email: **gabrielrumiranda@gmail.com**
 
 ### What to include
 
