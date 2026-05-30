@@ -13,6 +13,8 @@ require_relative 'human/adapters/resolvers/enum'
 require_relative 'human/adapters/resolvers/boolean'
 require_relative 'human/adapters/resolvers/custom'
 require_relative 'human/adapters/resolvers/text'
+require_relative 'human/adapters/resolvers/date'
+require_relative 'human/adapters/resolvers/number'
 
 module PaperTrail
   module Human
