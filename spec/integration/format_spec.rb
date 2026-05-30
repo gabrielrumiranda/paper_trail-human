@@ -65,4 +65,38 @@ RSpec.describe PaperTrail::Human do
       expect(results.last[:event]).to eq('update')
     end
   end
+
+  describe 'output formats' do
+    let(:version) do
+      instance_double(
+        'PaperTrail::Version',
+        item_type: 'Post', item_id: 1, event: 'update', whodunnit: '1',
+        created_at: Time.new(2026, 5, 30), object_changes: { 'title' => %w[Old New] }, object: nil
+      )
+    end
+
+    it 'returns string with as: :text' do
+      result = described_class.format(version, as: :text)
+
+      expect(result).to be_a(String)
+      expect(result).to include('Title: Old → New')
+    end
+
+    it 'returns string with as: :markdown' do
+      result = described_class.format(version, as: :markdown)
+
+      expect(result).to include('| Title | Old | New |')
+    end
+
+    it 'returns string with as: :html' do
+      result = described_class.format(version, as: :html)
+
+      expect(result).to include('<td>Title</td>')
+    end
+
+    it 'raises on unknown format' do
+      expect { described_class.format(version, as: :xml) }
+        .to raise_error(PaperTrail::Human::Error, /Unknown format/)
+    end
+  end
 end
