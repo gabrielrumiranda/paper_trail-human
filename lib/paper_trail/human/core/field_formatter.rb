@@ -20,7 +20,7 @@ module PaperTrail
 
         def call(field_name, previous_value, new_value)
           config = field_config(field_name)
-          resolver = build_resolver(config)
+          resolver = build_resolver(config, field_name)
 
           {
             field: human_field_name(field_name),
@@ -37,7 +37,7 @@ module PaperTrail
           @model_config.fields[field_name.to_s]
         end
 
-        def build_resolver(config)
+        def build_resolver(config, field_name = nil)
           return nil unless config
 
           class_name = RESOLVER_MAP[config[:type]]
@@ -46,6 +46,7 @@ module PaperTrail
           klass = Object.const_get(class_name)
           opts = config[:options]
           opts = opts.merge(cache: relation_cache(config)) if config[:type] == :relation
+          opts = opts.merge(field: field_name) if config[:type] == :enum && opts[:from_model]
           klass.new(**opts)
         end
 
