@@ -57,6 +57,10 @@ module PaperTrail
         as ? results.map { |r| formatter(as).call(r) } : results
       end
 
+      def timeline(versions, group_by: :day, only: nil, except: nil)
+        Core::Timeline.new(configuration).call(versions, group_by: group_by, only: only, except: except)
+      end
+
       private
 
       def formatter(type)
@@ -64,10 +68,6 @@ module PaperTrail
         raise Error, "Unknown format: #{type}. Available: #{FORMATTERS.keys.join(', ')}" unless klass
 
         klass.new
-      end
-
-      def timeline(versions, group_by: :day, only: nil, except: nil)
-        Core::Timeline.new(configuration).call(versions, group_by: group_by, only: only, except: except)
       end
     end
   end
