@@ -1,0 +1,6 @@
+en:
+  paper_trail_human:
+    events:
+      create: "Created"
+      update: "Updated"
+      destroy: "Destroyed"
