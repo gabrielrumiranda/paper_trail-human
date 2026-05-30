@@ -27,6 +27,9 @@ module PaperTrail
             fields: build_fields(changes, formatter, version.event, only: only, except: except)
           }
 
+          item_name = @configuration.resolve_item_name(version)
+          result[:item_name] = item_name if item_name
+
           apply_after_format(result, version)
         end
 
