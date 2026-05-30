@@ -39,22 +39,11 @@ RSpec.describe PaperTrail::Human::Core::ChangeExtractor do
       it 'parses YAML with ActiveSupport::TimeWithZone' do
         require 'active_support/core_ext/time/zones'
 
-        yaml = <<~YAML
-          ---
-          name:
-          - Old
-          - New
-          updated_at:
-          - !ruby/object:ActiveSupport::TimeWithZone
-            utc: 2026-05-29 12:00:00.000000000 Z
-            zone: &1 !ruby/object:ActiveSupport::TimeZone
-              name: Etc/UTC
-            time: 2026-05-29 12:00:00.000000000 Z
-          - !ruby/object:ActiveSupport::TimeWithZone
-            utc: 2026-05-29 13:00:00.000000000 Z
-            zone: *1
-            time: 2026-05-29 13:00:00.000000000 Z
-        YAML
+        time1 = Time.utc(2026, 5, 29, 12, 0, 0).in_time_zone('UTC')
+        time2 = Time.utc(2026, 5, 29, 13, 0, 0).in_time_zone('UTC')
+        changes = { 'name' => %w[Old New], 'updated_at' => [time1, time2] }
+        yaml = YAML.dump(changes)
+
         version = instance_double(
           'PaperTrail::Version',
           object_changes: yaml,
