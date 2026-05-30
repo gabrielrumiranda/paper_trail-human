@@ -24,7 +24,7 @@ module PaperTrail
         @ignored_fields = Array(fields).map(&:to_s)
       end
 
-      def register(model_name, &block)
+      def register(model_name, &)
         model_config = ModelConfig.new
         yield(model_config)
         @mutex.synchronize { @model_configs[model_name.to_s] = model_config.freeze }
