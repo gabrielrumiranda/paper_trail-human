@@ -7,7 +7,9 @@ module PaperTrail
         class Number
           include Ports::Resolver
 
+          # rubocop:disable Metrics/ParameterLists
           def initialize(format: :default, unit: nil, precision: 2, delimiter: ',', separator: '.', **)
+            # rubocop:enable Metrics/ParameterLists
             @format = format
             @unit = unit
             @precision = precision

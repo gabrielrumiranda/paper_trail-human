@@ -21,7 +21,7 @@ RSpec.describe PaperTrail::Human::Adapters::Resolvers::Relation do
 
     it 'returns raw value when record not found' do
       company_class = Class.new do
-        def self.find_by(id:) # rubocop:disable Lint/UnusedMethodArgument
+        def self.find_by(id:)
           nil
         end
       end

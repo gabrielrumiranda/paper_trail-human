@@ -16,7 +16,8 @@ module PaperTrail
           private
 
           def header(result)
-            "**#{result[:event]}** `#{result[:model]}##{result[:item_id]}` by #{result[:user]} at #{result[:created_at]}"
+            "**#{result[:event]}** `#{result[:model]}##{result[:item_id]}` " \
+              "by #{result[:user]} at #{result[:created_at]}"
           end
 
           def table_row(field)

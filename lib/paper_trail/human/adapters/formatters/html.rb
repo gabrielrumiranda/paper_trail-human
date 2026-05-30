@@ -22,7 +22,10 @@ module PaperTrail
           private
 
           def header(result)
-            "<strong>#{escape(result[:event])}</strong> #{escape(result[:model])}##{result[:item_id]} by #{escape(result[:user].to_s)}"
+            event = escape(result[:event])
+            model = escape(result[:model])
+            user = escape(result[:user].to_s)
+            "<strong>#{event}</strong> #{model}##{result[:item_id]} by #{user}"
           end
 
           def table_row(field)
